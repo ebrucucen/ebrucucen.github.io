@@ -201,6 +201,7 @@ PLATFORMS
 
 DEPENDENCIES
   github-pages
+  jekyll-feed
   json!
 
 BUNDLED WITH
