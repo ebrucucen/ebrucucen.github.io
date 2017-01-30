@@ -1,0 +1,33 @@
+.gist-highlight {
+    border-left: 3ex solid #eee;
+    position: relative;
+}
+
+.gist-highlight pre {
+    counter-reset: linenumbers;
+}
+
+.gist-highlight pre div:before {
+    color:#aaa;
+    content: counter(linenumbers);
+    counter-increment: linenumbers;
+    left: -3ex;
+    position: absolute;
+    text-align: right;
+    width: 2.5ex;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.gist {
+   max-width:1000px;
+   overflow-x:auto;
+}
+
+.gist .blob-wrapper.data {
+   max-height:30px;
+   overflow-y: auto;
+}
