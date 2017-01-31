@@ -25,13 +25,17 @@
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/gist-embed/2.4/gist-embed.min.js"></script>
     <div> Step1: Create a rsa key to login</div>
+    <div> We need a specific rsa key for our server as I will use for Puppet server only which will be used for our SSH login once the VM is created</div>
  <!--   <script src="https://gist.github.com/ebrucucen/b38ac1cb04267cb45170533f528aa577.js"></script>
   -->  <div><code data-gist-id="b38ac1cb04267cb45170533f528aa577"></code></div>
-    <div> Step2: Create the resource group</div>
+    <p><div> Step2: Create the resource group</div>
+    <div> We have the luxury of resource groups to isolate our environment, so we will create the resource group </div> 
     <div><code data-gist-id="9ffeac70051261414825055117f18a7b"></code></div>
-    <div> Step3: Create the Vnet</div>
+    <p><div> Step3: Create the Vnet</div>
+    <div> It is a good practice to include all the server and the agent under the same Vnet and subnet group, ideally a VNet with a connection to other VNets</div>
     <div><code data-gist-id="2c3639e5f6ee51fddeb31fbf773a69a3"></code></div>
-    <div> Step4: Create the VM from the image Linux Centos 7.2 latest</div> 
+    <p><div> Step4: Create the VM</div> 
+    <div> Finally we will create our VM from the latest image available, i.e. Linux Centos 7.2 </div>
     <div><code data-gist-id="332071bdbd16b2a889907083f6020a4a"></code></div>
 </body>
 </html>

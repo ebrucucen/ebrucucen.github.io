@@ -23,11 +23,11 @@
     user-select: none;
 }
 .gist {
-   max-width:1000px;
+   max-width:1200px;
    overflow-x:auto;
 }
 
 .gist .blob-wrapper.data {
-   max-height:30px;
+   max-height:20px;
    overflow-y: auto;
 }
