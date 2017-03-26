@@ -28,6 +28,6 @@
 }
 
 .gist .blob-wrapper.data {
-   max-height:20px;
+   max-height:80px;
    overflow-y: auto;
 }
