@@ -1,30 +1,40 @@
 import { useTheme } from "@/hooks/use-theme"
 import { useState, useEffect } from "react"
-import { Sun, Moon, Mail, FileText, Linkedin, Github } from "lucide-react"
+import { Sun, Moon, Mail, Linkedin } from "lucide-react"
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme()
   const [activeSection, setActiveSection] = useState("home")
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // Scroll spy effect
+  // Scroll spy effect (modern, robust)
   useEffect(() => {
     const handleScroll = () => {
-      const sections = document.querySelectorAll("section[id]")
-      const scrollY = window.scrollY + 120
+      const sections = Array.from(document.querySelectorAll("section[id]")) as HTMLElement[];
+      const scrollY = window.scrollY + 120;
 
-      let current = "home"
-      sections.forEach((section) => {
-        const sectionTop = (section as HTMLElement).offsetTop
-        if (scrollY >= sectionTop) {
-          current = section.id
+      if (sections.length && scrollY < sections[0].offsetTop) {
+        setActiveSection("home");
+        return;
+      }
+      if (
+        window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - 2
+      ) {
+        setActiveSection(sections[sections.length - 1].id);
+        return;
+      }
+      for (let i = sections.length - 1; i >= 0; i--) {
+        if (scrollY >= sections[i].offsetTop) {
+          setActiveSection(sections[i].id);
+          return;
         }
-      })
-      setActiveSection(current)
-    }
+      }
+    };
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [])
 
   const navItems = [
@@ -53,7 +63,7 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-950 dark:to-blue-950 transition-colors">
       {/* Skip Link */}
       <a
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-blue-600 text-white px-3 py-1 rounded z-50"
@@ -64,8 +74,8 @@ export default function Home() {
       </a>
 
       {/* Header */}
-      <header className="site-header" data-testid="header">
-        <div className="container">
+      <header className="site-header shadow-md bg-white/80 dark:bg-gray-900/80 backdrop-blur sticky top-0 z-40" data-testid="header">
+        <div className="container max-w-5xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Brand */}
             <a
@@ -74,21 +84,19 @@ export default function Home() {
               aria-label="Home"
               data-testid="brand-link"
             >
-              <div className="w-20 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-green-400 flex items-center justify-center text-white font-black text-lg">
-                Home
-              </div>
+              <span className="font-black text-xl tracking-tight text-blue-700 dark:text-blue-300">Home</span>
             </a>
 
             {/* Navigation */}
             <nav className="hidden md:block" aria-label="Primary" data-testid="nav">
-              <ul className="flex items-center gap-4">
+              <ul className="flex items-center gap-2">
                 {navItems.map((item) => (
                   <li key={item.href}>
                     <a
                       href={item.href}
-                      className={`px-4 py-2 rounded-lg transition-all font-medium ${activeSection === item.href.slice(1)
-                        ? "bg-gradient-to-r from-blue-400 to-green-400 text-white"
-                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className={`px-4 py-2 rounded-full transition-all font-medium ${activeSection === item.href.slice(1)
+                        ? "bg-gradient-to-r from-blue-500 to-green-400 text-white shadow"
+                        : "hover:bg-blue-100 dark:hover:bg-gray-800"
                         }`}
                       data-testid={`nav-${item.href.slice(1)}`}
                     >
@@ -96,19 +104,35 @@ export default function Home() {
                     </a>
                   </li>
                 ))}
-
+                {/* Theme toggle button */}
+                <li>
+                  <button
+                    onClick={toggleTheme}
+                    className="ml-2 p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+                    aria-label="Toggle dark/light mode"
+                    data-testid="theme-toggle"
+                  >
+                    {theme === "dark" ? (
+                      <Sun className="w-5 h-5 text-yellow-400" />
+                    ) : (
+                      <Moon className="w-5 h-5 text-blue-700" />
+                    )}
+                  </button>
+                </li>
               </ul>
-
             </nav>
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 rounded-lg bg-gray-100 dark:bg-gray-800"
+              className="md:hidden p-2 rounded-full bg-gray-100 dark:bg-gray-800"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-expanded={isMobileMenuOpen}
               data-testid="mobile-menu-toggle"
             >
-              Menu
+              <span className="sr-only">Open menu</span>
+              <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </button>
           </div>
 
@@ -120,7 +144,10 @@ export default function Home() {
                   <li key={item.href}>
                     <a
                       href={item.href}
-                      className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                      className={`block px-4 py-2 rounded-full ${activeSection === item.href.slice(1)
+                        ? "bg-gradient-to-r from-blue-500 to-green-400 text-white shadow"
+                        : "hover:bg-blue-100 dark:hover:bg-gray-800"
+                        }`}
                       onClick={() => setIsMobileMenuOpen(false)}
                       data-testid={`mobile-nav-${item.href.slice(1)}`}
                     >
@@ -128,6 +155,23 @@ export default function Home() {
                     </a>
                   </li>
                 ))}
+                <li>
+                  <button
+                    onClick={() => {
+                      toggleTheme();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="mt-2 p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors w-full flex items-center justify-center"
+                    aria-label="Toggle dark/light mode"
+                    data-testid="mobile-theme-toggle"
+                  >
+                    {theme === "dark" ? (
+                      <Sun className="w-5 h-5 text-yellow-400" />
+                    ) : (
+                      <Moon className="w-5 h-5 text-blue-700" />
+                    )}
+                  </button>
+                </li>
               </ul>
             </div>
           )}
@@ -137,49 +181,69 @@ export default function Home() {
       <main id="home" data-testid="main-content">
         {/* Hero Section */}
         <section className="section py-24" data-testid="hero-section">
-          <div className="container">
+          <div className="container max-w-5xl mx-auto px-4">
             <div className="grid lg:grid-cols-5 gap-12 items-center">
               <div className="lg:col-span-3">
-                <h1 className="mb-6" data-testid="hero-title">Welcome!</h1>
-                <p className="lead mb-8" data-testid="hero-description">
+                <h1 className="mb-6 font-bold text-4xl md:text-5xl text-gray-900 dark:text-white" data-testid="hero-title">Welcome!</h1>
+                <p className="lead mb-8 text-lg md:text-xl text-gray-700 dark:text-gray-200" data-testid="hero-description">
                   <br /> <br />
                   I'm Ebru, a technology leader and lifelong learner—committed to the art of Reading, wRiting, and aRithmetic in the age of intelligent machines.
                   I was fortunate to architect scalable systems and lead multi-cloud transformations in my 20+ years career, now I focus on building
                   practical AI and automation that thrives in real‑world complexity. This space is for personal reflections, technical notes, and the occasional
                   philosophical detour.
                 </p>
-
               </div>
               <div className="lg:col-span-2 relative min-h-80" data-testid="hero-art">
-                <div className="hero-art-blob animate-fade-in"></div>
+                <div className="hero-art-blob animate-fade-in">
+                  <svg
+                    viewBox="0 0 400 400"
+                    width="100%"
+                    height="100%"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false"
+                    style={{ display: "block" }}
+                  >
+                    <defs>
+                      <linearGradient id="blob-gradient" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#60a5fa" />
+                        <stop offset="100%" stopColor="#a7f3d0" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      fill="url(#blob-gradient)"
+                      d="M322,273Q309,346,236,353Q163,360,110,309Q57,258,81,179Q105,100,186,70Q267,40,312,120Q357,200,322,273Z"
+                      transform="translate(30 20)"
+                    />
+                  </svg>
+                </div>
               </div>
             </div>
             <div className="flex flex-wrap justify-center gap-4 mt-12" data-testid="pill-grid">
               <span className="pill">AI/LLM/SML</span>
               <span className="pill">Knowledge Graph</span>
               <span className="pill">Cloud Automation/DevOps</span>
-              <span className="pill">Resilient Systems</span>
             </div>
           </div>
         </section>
 
         {/* Highlights Section */}
         <section id="highlights" className="section section-alt" data-testid="highlights-section">
-          <div className="container">
-            <h2 className="mb-6" data-testid="highlights-title">Career highlights</h2>
+          <div className="container max-w-5xl mx-auto px-4">
+            <h2 className="mb-6 font-semibold text-2xl md:text-3xl text-blue-700 dark:text-blue-300" data-testid="highlights-title">Career highlights</h2>
             <div className="grid md:grid-cols-2 gap-6" data-testid="highlights-cards">
-              <article className="card animate-fade-in" data-testid="card-current">
-                <h3>Now</h3>
+              <article className="card animate-fade-in bg-white dark:bg-gray-800 shadow rounded-xl p-6" data-testid="card-current">
+                <h3 className="font-bold text-lg mb-2">Now</h3>
                 <p>
                   <strong>Co‑Founder, Cloud as Context</strong> by{" "}
-                  <a className="btn-link" href="https://declare-cloud.com" target="_blank" rel="noopener">
+                  <a className="btn-link text-blue-600 dark:text-blue-400 underline" href="https://declare-cloud.com" target="_blank" rel="noopener">
                     Declare Cloud
                   </a>{" "}
                   — building a deep‑tech, live AI tool for intelligent infrastructure.
                 </p>
               </article>
-              <article className="card animate-fade-in" data-testid="card-clients">
-                <h3>Previous Clients</h3>
+              <article className="card animate-fade-in bg-white dark:bg-gray-800 shadow rounded-xl p-6" data-testid="card-clients">
+                <h3 className="font-bold text-lg mb-2">Previous Clients</h3>
                 <p>
                   Deutsche Bank, Lloyds Bank, Aviva, AXA, BUPA, Wayfair, ASOS, MasterControl,
                   Kidsloop, Chetwood, TFL, Dunnhumby, and more.
@@ -191,27 +255,27 @@ export default function Home() {
 
         {/* Publications Section */}
         <section id="publications" className="section" data-testid="publications-section">
-          <div className="container">
-            <h2 className="mb-6" data-testid="publications-title">Publications & talks</h2>
+          <div className="container max-w-5xl mx-auto px-4">
+            <h2 className="mb-6 font-semibold text-2xl md:text-3xl text-blue-700 dark:text-blue-300" data-testid="publications-title">Publications & talks</h2>
             <div className="grid md:grid-cols-3 gap-6" data-testid="publications-cards">
-              <article className="card animate-fade-in" data-testid="card-devops">
-                <h3>Beginning DevOps (2019)</h3>
+              <article className="card animate-fade-in bg-white dark:bg-gray-800 shadow rounded-xl p-6" data-testid="card-devops">
+                <h3 className="font-bold text-lg mb-2">Beginning DevOps (2019)</h3>
                 <p>Editor — Azure, Docker, Kubernetes. Pragmatic foundations for modern delivery.</p>
-                <a className="btn-link" href="https://www.amazon.co.uk/Learning-DevOps-accelerate-collaboration-Kubernetes/dp/1838642730" target="_blank" rel="noopener">
+                <a className="btn-link text-blue-600 dark:text-blue-400 underline" href="https://www.amazon.co.uk/Learning-DevOps-accelerate-collaboration-Kubernetes/dp/1838642730" target="_blank" rel="noopener">
                   View Publication
                 </a>
               </article>
-              <article className="card animate-fade-in" data-testid="card-graphs">
-                <h3>Connecting the Dots (2020)</h3>
+              <article className="card animate-fade-in bg-white dark:bg-gray-800 shadow rounded-xl p-6" data-testid="card-graphs">
+                <h3 className="font-bold text-lg mb-2">Connecting the Dots (2020)</h3>
                 <p>Author — Harness the power of graphs and ML to build real‑world intelligence.</p>
-                <a className="btn-link" href="https://www.opencredo.com/connect-the-dots-harness-the-power-of-graphs-ml-ebook" target="_blank" rel="noopener">
+                <a className="btn-link text-blue-600 dark:text-blue-400 underline" href="https://www.opencredo.com/connect-the-dots-harness-the-power-of-graphs-ml-ebook" target="_blank" rel="noopener">
                   View Publication
                 </a>
               </article>
-              <article className="card animate-fade-in" data-testid="card-yow">
-                <h3>YOW! 2022</h3>
+              <article className="card animate-fade-in bg-white dark:bg-gray-800 shadow rounded-xl p-6" data-testid="card-yow">
+                <h3 className="font-bold text-lg mb-2">YOW! 2022</h3>
                 <p>Searching for Research Fraud in OpenAlex with Graph Data Science.</p>
-                <a className="btn-link" href="https://www.youtube.com/watch?v=6_e-F0TbFCg" target="_blank" rel="noopener">
+                <a className="btn-link text-blue-600 dark:text-blue-400 underline" href="https://www.youtube.com/watch?v=6_e-F0TbFCg" target="_blank" rel="noopener">
                   Watch Talk
                 </a>
               </article>
@@ -222,35 +286,34 @@ export default function Home() {
           </div>
         </section>
 
-
         {/* Reflections Section */}
-        <section id="reflections" className="section" data-testid="reflections-section">
-          <div className="container">
-            <h2 className="mb-4" data-testid="reflections-title">Reflections</h2>
-            <p className="mb-8 text-lg" data-testid="reflections-description">
+        <section id="reflections" className="section section-alt" data-testid="reflections-section">
+          <div className="container max-w-5xl mx-auto px-4">
+            <h2 className="mb-4 font-semibold text-2xl md:text-3xl text-blue-700 dark:text-blue-300" data-testid="reflections-title">Reflections</h2>
+            <p className="mb-8 text-lg text-gray-700 dark:text-gray-200" data-testid="reflections-description">
               Occasional essays and notes on resilient systems, humane automation, and lessons from practice.
             </p>
 
             <div className="space-y-6" data-testid="blog-posts">
               {blogPosts.map((post, index) => (
-                <article key={index} className="blog-post animate-fade-in" data-testid={`blog-post-${index}`}>
+                <article key={index} className="blog-post animate-fade-in bg-white dark:bg-gray-800 shadow rounded-xl p-6" data-testid={`blog-post-${index}`}>
                   <div className="text-sm text-muted mb-3" data-testid={`blog-meta-${index}`}>
                     {post.meta}
                   </div>
-                  <h3 className="mb-4" data-testid={`blog-title-${index}`}>
+                  <h3 className="mb-4 font-bold text-lg" data-testid={`blog-title-${index}`}>
                     {post.title}
                   </h3>
                   <p className="text-muted mb-6 leading-relaxed" data-testid={`blog-excerpt-${index}`}>
                     {post.excerpt}
                   </p>
-                  <a href="#" className="btn-link" data-testid={`blog-link-${index}`}>
+                  <a href="#" className="btn-link text-blue-600 dark:text-blue-400 underline" data-testid={`blog-link-${index}`}>
                     Read full article →
                   </a>
                 </article>
               ))}
             </div>
 
-            <div className="note-box" data-testid="newsletter-signup">
+            <div className="note-box mt-8 bg-blue-50 dark:bg-blue-900/30 rounded-lg p-4" data-testid="newsletter-signup">
               <p>
                 <em>Subscribe to my newsletter:</em> Get notified about new posts on agentic systems,
                 operational resilience, and the future of intelligent automation.
@@ -260,10 +323,10 @@ export default function Home() {
         </section>
 
         {/* Connect Section */}
-        <section id="connect" className="section section-alt" data-testid="connect-section">
-          <div className="container">
-            <h2 className="mb-4" data-testid="connect-title">Connect</h2>
-            <p className="mb-8 text-lg" data-testid="connect-description">
+        <section id="connect" className="section" data-testid="connect-section">
+          <div className="container max-w-5xl mx-auto px-4">
+            <h2 className="mb-4 font-semibold text-2xl md:text-3xl text-blue-700 dark:text-blue-300" data-testid="connect-title">Connect</h2>
+            <p className="mb-8 text-lg text-gray-700 dark:text-gray-200" data-testid="connect-description">
               Let's discuss speaking opportunities, advisory work, and collaborations. Based in Oxford, UK.
             </p>
 
@@ -272,10 +335,10 @@ export default function Home() {
                 href="https://www.linkedin.com/in/ebrucucen"
                 target="_blank"
                 rel="noopener"
-                className="social-link animate-fade-in hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 transition-colors"
+                className="social-link animate-fade-in hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-700 transition-colors flex flex-col items-center rounded-lg p-4"
                 data-testid="social-linkedin"
               >
-                <Linkedin className="w-8 h-8" />
+                <Linkedin className="w-8 h-8 mb-2" />
                 <span className="font-semibold text-sm">LinkedIn</span>
               </a>
 
@@ -283,11 +346,11 @@ export default function Home() {
                 href="https://github.com/ebrucucen"
                 target="_blank"
                 rel="noopener"
-                className="social-link animate-fade-in hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 transition-colors"
+                className="social-link animate-fade-in hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 transition-colors flex flex-col items-center rounded-lg p-4"
                 data-testid="social-github"
               >
                 <svg
-                  className="w-8 h-8"
+                  className="w-8 h-8 mb-2"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   aria-hidden="true"
@@ -299,22 +362,29 @@ export default function Home() {
 
               <a
                 href="mailto:ebru@declare-cloud.com"
-                className="social-link animate-fade-in hover:bg-green-100 dark:hover:bg-green-900 hover:text-green-700 transition-colors"
+                className="social-link animate-fade-in hover:bg-green-100 dark:hover:bg-green-900 hover:text-green-700 transition-colors flex flex-col items-center rounded-lg p-4"
                 data-testid="social-email"
               >
-                <Mail className="w-8 h-8" />
+                <Mail className="w-8 h-8 mb-2" />
                 <span className="font-semibold text-sm">Email</span>
               </a>
 
               <a
-                href="https://www.slideshare.net/guestc1bba78/presentations"
+                href="https://twitter.com/ebrucucen"
                 target="_blank"
                 rel="noopener"
-                className="social-link animate-fade-in hover:bg-purple-100 dark:hover:bg-purple-900 hover:text-purple-700 transition-colors"
-                data-testid="social-speakerdeck"
+                className="social-link animate-fade-in hover:bg-blue-50 dark:hover:bg-blue-900 hover:text-blue-700 transition-colors flex flex-col items-center rounded-lg p-4"
+                data-testid="social-twitter"
               >
-                <FileText className="w-8 h-8" />
-                <span className="font-semibold text-sm">Speaker Deck</span>
+                <svg
+                  className="w-8 h-8 mb-2"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M23.954 4.569c-.885.389-1.83.654-2.825.775 1.014-.611 1.794-1.574 2.163-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-2.72 0-4.924 2.206-4.924 4.924 0 .39.045.765.127 1.124-4.09-.205-7.719-2.165-10.148-5.144-.424.729-.666 1.577-.666 2.476 0 1.708.87 3.216 2.188 4.099-.807-.026-1.566-.247-2.228-.616v.062c0 2.385 1.693 4.374 3.946 4.827-.413.111-.849.171-1.296.171-.317 0-.626-.03-.928-.086.627 1.956 2.444 3.377 4.6 3.417-1.68 1.318-3.809 2.105-6.102 2.105-.396 0-.787-.023-1.175-.067 2.179 1.397 4.768 2.213 7.557 2.213 9.054 0 14.002-7.496 14.002-13.986 0-.21 0-.423-.016-.634.962-.689 1.797-1.56 2.457-2.548z" />
+                </svg>
+                <span className="font-semibold text-sm">Twitter</span>
               </a>
             </div>
           </div>
@@ -323,7 +393,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t-2 border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 py-12" data-testid="footer">
-        <div className="container">
+        <div className="container max-w-5xl mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p data-testid="footer-copyright">
               &copy; {new Date().getFullYear()} Ebru. All rights reserved.
@@ -342,6 +412,6 @@ export default function Home() {
           </div>
         </div>
       </footer>
-    </div >
+    </div>
   )
 }
